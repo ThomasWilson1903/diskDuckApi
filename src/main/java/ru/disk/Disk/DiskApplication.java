@@ -11,4 +11,3 @@ public class DiskApplication {
 	}
 
 }
-// залей на git в отдельный репозиторий

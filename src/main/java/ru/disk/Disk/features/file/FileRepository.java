@@ -10,4 +10,7 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
     @Query("SELECT u FROM files u WHERE folder_id = ?1")
     Page<FileEntity> findByFolderId(Long folderId, Pageable pageable);
+
+    @Query("SELECT u FROM files u WHERE folder_id = NULL")
+    Page<FileEntity> findByFolderNull(Pageable pageable);
 }

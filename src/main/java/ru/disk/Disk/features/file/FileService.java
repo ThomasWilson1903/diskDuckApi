@@ -44,10 +44,18 @@ public class FileService {
             @Min(0) int pageNumber,
             @Min(1) @Max(100) int pageSize
     ) {
-        Page<FileEntity> entities = fileRepository.findByFolderId(
-                folderId,
-                PageRequest.of(pageNumber, pageSize)
-        );
+        Page<FileEntity> entities;
+
+        if(folderId == null){
+            entities = fileRepository.findByFolderNull(
+                    PageRequest.of(pageNumber, pageSize)
+            );
+        }else {
+            entities = fileRepository.findByFolderId(
+                    folderId,
+                    PageRequest.of(pageNumber, pageSize)
+            );
+        }
 
         return entities.map(FileDto::new);
     }
