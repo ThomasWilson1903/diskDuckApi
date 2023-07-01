@@ -65,6 +65,8 @@ public class FolderController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
     public void delete(
             @RequestParam(name = "folder_id") Long folderId
     ){
@@ -72,6 +74,8 @@ public class FolderController {
     }
 
     @PatchMapping("/public")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<FolderDto> updatePublic(
             @RequestParam(name = "folder_id") Long folderId
     ){

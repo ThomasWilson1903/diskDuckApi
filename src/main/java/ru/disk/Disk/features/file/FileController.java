@@ -88,8 +88,15 @@ public class FileController {
 
     @GetMapping("resource")
     public ResponseEntity<Resource> getFileResource(
-            @RequestParam(name = "patch") String filePatch
+            @RequestParam(name = "patch") String patch,
+            HttpServletRequest request
     ) {
-        return fileService.getFileResource(filePatch);
+        Long userId = null;
+
+        try {
+            userId = userService.getAuthInfo(request).getId();
+        }catch (Exception ignored) {}
+
+        return fileService.getFileResource(patch, userId);
     }
 }

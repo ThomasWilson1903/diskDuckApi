@@ -18,10 +18,11 @@ import ru.disk.Disk.features.user.entity.UserEntity;
 import ru.disk.Disk.utils.exceptions.NotFoundException;
 import ru.disk.Disk.utils.repository.FileManager;
 
-import javax.annotation.Resources;
+import javax.security.auth.message.AuthException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -194,7 +195,19 @@ public class FileService {
     }
 
     @SneakyThrows
-    public ResponseEntity<Resource> getFileResource(String filePatch) {
-        return fileManager.get(filePatch);
+    public ResponseEntity<Resource> getFileResource(String patch, Long userId) {
+        Optional<FileEntity> fileEntityOptional = fileRepository.findByPatch(patch);
+
+        if(fileEntityOptional.isEmpty())
+            throw new NotFoundException("not found file");
+
+        FileEntity fileEntity = fileEntityOptional.get();
+
+        if(userId == null && !fileEntity.isPublic)
+            throw new AuthException();
+        else if(userId != null && !fileEntity.isPublic && !Objects.equals(fileEntity.getUser().getId(), userId))
+            throw new AuthException();
+
+        return fileManager.get(fileEntity.getPath());
     }
 }

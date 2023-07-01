@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.disk.Disk.features.file.entity.FileEntity;
 
+import java.util.Optional;
+
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
     @Query("SELECT u FROM files u WHERE folder_id = ?1")
@@ -13,4 +15,6 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
     @Query("SELECT u FROM files u WHERE folder_id = NULL")
     Page<FileEntity> findByFolderNull(Pageable pageable);
+
+    Optional<FileEntity> findByPatch(String patch);
 }
