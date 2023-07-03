@@ -8,9 +8,9 @@ import ru.disk.Disk.features.folder.entity.FolderEntity;
 
 public interface FolderRepository extends JpaRepository<FolderEntity, Long> {
 
-    @Query("SELECT u FROM folders u WHERE folder_id = ?1")
-    Page<FolderEntity> findByFolderId(Long folderId, Pageable pageable);
+    @Query("SELECT u FROM folders u WHERE folder_id = ?1 AND user_id = ?2")
+    Page<FolderEntity> findByFolderId(Long folderId, Long userId, Pageable pageable);
 
-    @Query("SELECT u FROM folders u WHERE folder_id = NULL")
-    Page<FolderEntity> findByFolderNull(Pageable pageable);
+    @Query("SELECT u FROM folders u WHERE folder_id = NULL AND user_id = ?1")
+    Page<FolderEntity> findByFolderNull(Long userId, Pageable pageable);
 }

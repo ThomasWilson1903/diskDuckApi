@@ -10,11 +10,9 @@ import java.util.Optional;
 
 public interface FileRepository extends JpaRepository<FileEntity, Long> {
 
-    @Query("SELECT u FROM files u WHERE folder_id = ?1")
-    Page<FileEntity> findByFolderId(Long folderId, Pageable pageable);
+    @Query("SELECT u FROM files u WHERE folder_id = ?1 AND user_id = ?2")
+    Page<FileEntity> findByFolderId(Long folderId, Long userId, Pageable pageable);
 
-    @Query("SELECT u FROM files u WHERE folder_id = NULL")
-    Page<FileEntity> findByFolderNull(Pageable pageable);
-
-    Optional<FileEntity> findByPatch(String patch);
+    @Query("SELECT u FROM files u WHERE folder_id = NULL AND user_id = ?1")
+    Page<FileEntity> findByFolderNull(Long userId, Pageable pageable);
 }

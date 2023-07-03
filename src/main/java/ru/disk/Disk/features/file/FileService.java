@@ -42,6 +42,7 @@ public class FileService {
 
     public Page<FileDto> getAll(
             Long folderId,
+            Long userId,
             @Min(0) int pageNumber,
             @Min(1) @Max(100) int pageSize
     ) {
@@ -49,11 +50,13 @@ public class FileService {
 
         if(folderId == null){
             entities = fileRepository.findByFolderNull(
+                    userId,
                     PageRequest.of(pageNumber, pageSize)
             );
         }else {
             entities = fileRepository.findByFolderId(
                     folderId,
+                    userId,
                     PageRequest.of(pageNumber, pageSize)
             );
         }
@@ -98,34 +101,26 @@ public class FileService {
 
     @SneakyThrows
     @Transient
-    public FileDto rename(Long fileId, String name) {
+    public FileDto rename(Long fileId, String name, Long userId) {
         Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
 
         if(optionalFileEntity.isEmpty())
             throw new NotFoundException("file not found");
 
         FileEntity fileEntity = optionalFileEntity.get();
-        String folderName;
 
-        if(fileEntity.getFolder() == null)
-            folderName = "main";
-        else
-            folderName = fileEntity.getFolder().getName() + "_" + fileEntity.getFolder().getId();
+        if(!Objects.equals(fileEntity.getUser().getId(), userId)) throw new AuthException();
 
-        String newPatch = "/resources/users/" +
-                fileEntity.getUser().getEmail() +
-                "/" + folderName + "/" + name + "." +
-                fileEntity.getExpansion();
+        String oldPatch = fileEntity.getPatch();
 
         fileEntity.setName(name);
         fileEntity.setDateUpdate(new Date());
-        fileEntity.setPatch(newPatch);
 
         FileDto fileDto =  new FileDto(fileRepository.save(fileEntity));
 
         fileManager.rename(
-                fileEntity.patch,
-                newPatch
+                oldPatch,
+                fileEntity.getPatch()
         );
 
         return fileDto;
@@ -133,7 +128,7 @@ public class FileService {
 
     @SneakyThrows
     @Transient
-    public FileDto updateFolder(Long fileId, Long folderId) {
+    public FileDto updateFolder(Long fileId, Long folderId, Long userId) {
         Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
 
         if(optionalFileEntity.isEmpty()) throw new NotFoundException("file not found");
@@ -146,32 +141,36 @@ public class FileService {
 
         FolderEntity folderEntity = optionalFolderEntity.get();
 
-        String newPath = "/resources/users/" +
-                fileEntity.getUser().getEmail() +
-                "/" + folderEntity.getName() + "_" + folderEntity.getId() + "/" + fileEntity.getName() + "." +
-                fileEntity.getExpansion();
+        if(!Objects.equals(fileEntity.getUser().getId(), userId) || !Objects.equals(folderEntity.getUser().getId(), userId))
+            throw new AuthException();
+
+        String oldPatch = fileEntity.getPatch();
 
         fileEntity.setFolder(folderEntity);
         fileEntity.setDateUpdate(new Date());
-        fileEntity.setPatch(newPath);
 
         FileDto fileDto = new FileDto(fileRepository.save(fileEntity));
 
-        fileManager.rename(
-                fileEntity.patch,
-                newPath
+        Boolean renameSuccess = fileManager.rename(
+                oldPatch,
+                fileEntity.getPatch()
         );
+
+        if(!renameSuccess)
+            throw new Exception();
 
         return fileDto;
     }
 
     @SneakyThrows
-    public FileDto updatePublic(Long fileId) {
+    public FileDto updatePublic(Long fileId, Long userId) {
         Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
 
         if(optionalFileEntity.isEmpty()) throw new NotFoundException("file not found");
 
         FileEntity fileEntity = optionalFileEntity.get();
+
+        if(!Objects.equals(fileEntity.getUser().getId(), userId)) throw new AuthException();
 
         fileEntity.setIsPublic(!fileEntity.getIsPublic());
         fileEntity.setDateUpdate(new Date());
@@ -181,7 +180,7 @@ public class FileService {
 
     @SneakyThrows
     @Transient
-    public void delete(Long fileId) {
+    public void delete(Long fileId, Long userId) {
         Optional<FileEntity> optionalFileEntity = fileRepository.findById(fileId);
 
         if(optionalFileEntity.isEmpty())
@@ -189,14 +188,16 @@ public class FileService {
 
         FileEntity fileEntity = optionalFileEntity.get();
 
+        if(!Objects.equals(fileEntity.getUser().getId(), userId)) throw new AuthException();
+
         fileRepository.delete(fileEntity);
 
         fileManager.delete(fileEntity.getPatch());
     }
 
     @SneakyThrows
-    public ResponseEntity<Resource> getFileResource(String patch, Long userId) {
-        Optional<FileEntity> fileEntityOptional = fileRepository.findByPatch(patch);
+    public ResponseEntity<Resource> getFileResource(Long fileId, Long userId) {
+        Optional<FileEntity> fileEntityOptional = fileRepository.findById(fileId);
 
         if(fileEntityOptional.isEmpty())
             throw new NotFoundException("not found file");

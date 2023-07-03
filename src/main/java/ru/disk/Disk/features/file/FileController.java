@@ -27,12 +27,17 @@ public class FileController {
     private UserService userService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<Page<FileDto>> getAll(
             @RequestParam(name = "folder_id", required = false) Long folderId,
             @RequestParam(name = "page", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "20") int pageSize
+            @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
+            HttpServletRequest request
     ){
-        return ResponseEntity.ok(fileService.getAll(folderId, pageNumber, pageSize));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(fileService.getAll(folderId, user.getId(), pageNumber, pageSize));
     }
 
     @PostMapping(consumes = { "multipart/form-data" })
@@ -53,9 +58,12 @@ public class FileController {
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<FileDto> rename(
             @RequestParam(name = "file_id") Long fileId,
-            @RequestParam(name = "file_name") String fileName
+            @RequestParam(name = "file_name") String fileName,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok(fileService.rename(fileId, fileName));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(fileService.rename(fileId, fileName, user.getId()));
     }
 
     @PatchMapping("folder")
@@ -63,32 +71,41 @@ public class FileController {
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<FileDto> updateFolder(
             @RequestParam(name = "file_id") Long fileId,
-            @RequestParam(name = "folder_id") Long folderId
+            @RequestParam(name = "folder_id") Long folderId,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok(fileService.updateFolder(fileId, folderId));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(fileService.updateFolder(fileId, folderId, user.getId()));
     }
 
     @PatchMapping("public")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<FileDto> updatePublic(
-            @RequestParam(name = "file_id") Long fileId
+            @RequestParam(name = "file_id") Long fileId,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok(fileService.updatePublic(fileId));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(fileService.updatePublic(fileId, user.getId()));
     }
 
     @DeleteMapping
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('BASE_USER')")
     public void delete(
-            @RequestParam(name = "file_id") Long fileId
+            @RequestParam(name = "file_id") Long fileId,
+            HttpServletRequest request
     ) {
-        fileService.delete(fileId);
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        fileService.delete(fileId, user.getId());
     }
 
     @GetMapping("resource")
     public ResponseEntity<Resource> getFileResource(
-            @RequestParam(name = "patch") String patch,
+            @RequestParam(name = "file_id") Long fileId,
             HttpServletRequest request
     ) {
         Long userId = null;
@@ -97,6 +114,6 @@ public class FileController {
             userId = userService.getAuthInfo(request).getId();
         }catch (Exception ignored) {}
 
-        return fileService.getFileResource(patch, userId);
+        return fileService.getFileResource(fileId, userId);
     }
 }

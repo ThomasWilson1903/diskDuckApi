@@ -32,12 +32,17 @@ public class FolderController {
     private UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<FolderDto>> getAll(
             @RequestParam(name = "folder_id", required = false) Long folderId,
             @RequestParam(name = "page", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "20") int pageSize
+            @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
+            HttpServletRequest request
     ){
-        return ResponseEntity.ok(folderService.getAll(folderId, pageNumber, pageSize));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(folderService.getAll(folderId, user.getId(), pageNumber, pageSize));
     }
 
     @PostMapping
@@ -68,17 +73,23 @@ public class FolderController {
     @PreAuthorize("hasAuthority('BASE_USER')")
     @SecurityRequirement(name = "bearerAuth")
     public void delete(
-            @RequestParam(name = "folder_id") Long folderId
+            @RequestParam(name = "folder_id") Long folderId,
+            HttpServletRequest request
     ){
-        folderService.delete(folderId);
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        folderService.delete(folderId, user.getId());
     }
 
     @PatchMapping("/public")
     @PreAuthorize("hasAuthority('BASE_USER')")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<FolderDto> updatePublic(
-            @RequestParam(name = "folder_id") Long folderId
+            @RequestParam(name = "folder_id") Long folderId,
+            HttpServletRequest request
     ){
-        return ResponseEntity.ok(folderService.updatePublic(folderId));
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(folderService.updatePublic(folderId, user.getId()));
     }
 }

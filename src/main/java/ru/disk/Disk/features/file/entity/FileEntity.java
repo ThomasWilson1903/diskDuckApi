@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.entity.UserEntity;
+import ru.disk.Disk.utils.BaseConstance;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -26,9 +27,6 @@ public class FileEntity {
 
     @Column(nullable = false)
     public String name;
-
-    @Column(nullable = false)
-    public String patch;
 
     @Column(nullable = false)
     public String expansion;
@@ -67,8 +65,23 @@ public class FileEntity {
         this.isPublic = false;
         this.user = user;
         this.folder = folder;
-        this.patch = path;
 
         this.size = Math.toIntExact(Files.size(Path.of(path)));
+    }
+
+    public String getPatch() {
+        String folderName;
+
+        if(folder == null)
+            folderName = "main";
+        else
+            folderName = folder.name + "_" + folder.getId();
+
+        String fileName = name;
+
+        if(!fileName.contains("."))
+            fileName += "." + expansion;
+
+        return "/resources/users/" + user.getEmail() + "/" + folderName + "/" + fileName;
     }
 }

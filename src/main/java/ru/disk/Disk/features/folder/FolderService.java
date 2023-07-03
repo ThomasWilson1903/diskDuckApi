@@ -13,9 +13,11 @@ import ru.disk.Disk.features.user.entity.UserEntity;
 import ru.disk.Disk.utils.exceptions.NotFoundException;
 import ru.disk.Disk.utils.repository.FileManager;
 
+import javax.security.auth.message.AuthException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,6 +34,7 @@ public class FolderService {
 
     public Page<FolderDto> getAll(
             Long folderId,
+            Long userId,
             @Min(0) int pageNumber,
             @Min(1) @Max(100) int pageSize
     ) {
@@ -39,11 +42,13 @@ public class FolderService {
 
         if(folderId == null){
             entities = folderRepository.findByFolderNull(
+                    userId,
                     PageRequest.of(pageNumber, pageSize)
             );
         }else {
             entities = folderRepository.findByFolderId(
                     folderId,
+                    userId,
                     PageRequest.of(pageNumber, pageSize)
             );
         }
@@ -89,12 +94,14 @@ public class FolderService {
 
     @SneakyThrows
     @Transient
-    public void delete(Long folderId) {
+    public void delete(Long folderId, Long userId) {
         Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
 
         if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
 
         FolderEntity folderEntity = optionalFolderEntity.get();
+
+        if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
 
         folderRepository.delete(folderEntity);
 
@@ -106,15 +113,32 @@ public class FolderService {
     }
 
     @SneakyThrows
-    public FolderDto updatePublic(Long folderId) {
+    public FolderDto updatePublic(Long folderId, Long userId) {
         Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
 
         if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
 
         FolderEntity folderEntity = optionalFolderEntity.get();
 
+        if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
+
         folderEntity.setIsPublic(!folderEntity.getIsPublic());
         folderEntity.setDateUpdate(new Date());
+
+        return new FolderDto(folderRepository.save(folderEntity));
+    }
+
+    @SneakyThrows
+    public FolderDto rename(Long userId, Long folderId, String name) {
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
+
+       folderEntity.setName(name);
 
         return new FolderDto(folderRepository.save(folderEntity));
     }
