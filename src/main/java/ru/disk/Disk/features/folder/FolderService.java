@@ -85,11 +85,7 @@ public class FolderService {
 
         FolderEntity folderEntity = optionalFolderEntity.get();
 
-        return fileManager.getSizeFolder(
-                "/resources/users/" +
-                        folderEntity.getUser().getEmail() +
-                        "/" + folderEntity.getName() + "_" + folderEntity.getId()
-        );
+        return fileManager.getSizeFolder(folderEntity.getPatch());
     }
 
     @SneakyThrows
@@ -105,11 +101,7 @@ public class FolderService {
 
         folderRepository.delete(folderEntity);
 
-        fileManager.deleteFolder(
-                "/resources/users/" +
-                        folderEntity.getUser().getEmail() +
-                        "/" + folderEntity.getName() + "_" + folderEntity.getId()
-        );
+        fileManager.deleteFolder(folderEntity.getPatch());
     }
 
     @SneakyThrows
@@ -138,8 +130,58 @@ public class FolderService {
 
         if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
 
-       folderEntity.setName(name);
+        String oldFolderPatch = folderEntity.getPatch();
+
+        folderEntity.setName(name);
+
+        String newFolderPatch = folderEntity.getPatch();
+
+        Boolean renameSuccess = fileManager.rename(oldFolderPatch, newFolderPatch);
+
+        if(!renameSuccess) throw new Exception();
 
         return new FolderDto(folderRepository.save(folderEntity));
+    }
+
+    @SneakyThrows
+    public FolderDto updateFolder(Long userId, Long folderId, Long newFolderId) {
+        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+
+        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("folder not found");
+
+        FolderEntity folderEntity = optionalFolderEntity.get();
+
+        FolderEntity newFolderEntity;
+
+        if(newFolderId == null) {
+            newFolderEntity = null;
+
+            if(!Objects.equals(folderEntity.getUser().getId(), userId))
+                throw new AuthException();
+        }else {
+            Optional<FolderEntity> optionalNewFolderEntity = folderRepository.findById(newFolderId);
+
+            if(optionalNewFolderEntity.isEmpty()) throw new NotFoundException("file not found");
+
+            newFolderEntity = optionalNewFolderEntity.get();
+
+            if(!Objects.equals(folderEntity.getUser().getId(), userId) || !Objects.equals(newFolderEntity.getUser().getId(), userId))
+                throw new AuthException();
+        }
+
+        String oldPatch = folderEntity.getPatch();
+
+        folderEntity.setFolder(newFolderEntity);
+        folderEntity.setDateUpdate(new Date());
+
+        Boolean renameSuccess = fileManager.rename(
+                oldPatch,
+                folderEntity.getPatch()
+        );
+
+        if(!renameSuccess)
+            throw new Exception();
+
+        return new FolderDto(folderEntity);
     }
 }

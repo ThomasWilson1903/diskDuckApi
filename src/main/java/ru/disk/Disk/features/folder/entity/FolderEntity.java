@@ -64,4 +64,10 @@ public class FolderEntity {
         this.isPublic = dto.getIsPublic();
         this.user = new UserEntity(dto.getUser());
     }
+
+    public String getPatch() {
+        return "/resources/users/" +
+               user.getEmail() +
+                "/" + name + "_" + id;
+    }
 }

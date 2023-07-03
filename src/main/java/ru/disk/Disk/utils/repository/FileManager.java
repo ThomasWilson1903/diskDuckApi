@@ -19,6 +19,8 @@ public interface FileManager {
 
     Boolean rename(String oldFilePath, String newFilePath);
 
+    Boolean moveFolder(String oldFilePath, String newFilePath);
+
     Long getSizeFolder(String path);
 
     void deleteFolder(String path);

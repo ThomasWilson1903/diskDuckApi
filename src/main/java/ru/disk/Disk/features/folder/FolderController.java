@@ -92,4 +92,30 @@ public class FolderController {
 
         return ResponseEntity.ok(folderService.updatePublic(folderId, user.getId()));
     }
+
+    @PatchMapping("/rename")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<FolderDto> rename(
+            @RequestParam(name = "folder_id") Long folderId,
+            @RequestParam(name = "name") String name,
+            HttpServletRequest request
+    ){
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(folderService.rename(user.getId(), folderId, name));
+    }
+
+    @PatchMapping("/move")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<FolderDto> updateFolder(
+            @RequestParam(name = "folder_id") Long folderId,
+            @RequestParam(name = "new_folder_id", required = false) Long newFolderId,
+            HttpServletRequest request
+    ){
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(folderService.updateFolder(user.getId(), folderId, newFolderId));
+    }
 }

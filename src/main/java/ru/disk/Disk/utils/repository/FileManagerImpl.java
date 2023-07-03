@@ -106,6 +106,25 @@ public class FileManagerImpl implements FileManager {
         return length;
     }
 
+    @Override
+    public Boolean moveFolder(String oldFilePath, String newFilePath) {
+        File oldDir = new File(oldFilePath);
+        File newDir = new File(oldFilePath);
+
+        if(!newDir.exists())
+            newDir.mkdirs();
+
+        try {
+            FileUtils.copyDirectory(oldDir, newDir);
+            deleteFolder(oldFilePath);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
     @SneakyThrows
     @Override
     public void deleteFolder(String path) {

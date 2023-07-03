@@ -158,7 +158,7 @@ public class FileService {
         fileEntity.setFolder(folderEntity);
         fileEntity.setDateUpdate(new Date());
 
-        Boolean renameSuccess = fileManager.rename(
+        Boolean renameSuccess = fileManager.moveFolder(
                 oldPatch,
                 fileEntity.getPatch()
         );

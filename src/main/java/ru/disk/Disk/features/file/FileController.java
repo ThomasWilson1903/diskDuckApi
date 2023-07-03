@@ -66,7 +66,7 @@ public class FileController {
         return ResponseEntity.ok(fileService.rename(fileId, fileName, user.getId()));
     }
 
-    @PatchMapping("folder")
+    @PatchMapping("move")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<FileDto> updateFolder(
