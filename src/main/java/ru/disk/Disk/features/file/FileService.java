@@ -135,21 +135,28 @@ public class FileService {
 
         FileEntity fileEntity = optionalFileEntity.get();
 
-        Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
+        FolderEntity folderEntity;
 
-        if(optionalFolderEntity.isEmpty()) throw new NotFoundException("file not found");
+        if(folderId == null) {
+            folderEntity = null;
 
-        FolderEntity folderEntity = optionalFolderEntity.get();
+            if(!Objects.equals(fileEntity.getUser().getId(), userId))
+                throw new AuthException();
+        }else {
+            Optional<FolderEntity> optionalFolderEntity = folderRepository.findById(folderId);
 
-        if(!Objects.equals(fileEntity.getUser().getId(), userId) || !Objects.equals(folderEntity.getUser().getId(), userId))
-            throw new AuthException();
+            if(optionalFolderEntity.isEmpty()) throw new NotFoundException("file not found");
+
+            folderEntity = optionalFolderEntity.get();
+
+            if(!Objects.equals(fileEntity.getUser().getId(), userId) || !Objects.equals(folderEntity.getUser().getId(), userId))
+                throw new AuthException();
+        }
 
         String oldPatch = fileEntity.getPatch();
 
         fileEntity.setFolder(folderEntity);
         fileEntity.setDateUpdate(new Date());
-
-        FileDto fileDto = new FileDto(fileRepository.save(fileEntity));
 
         Boolean renameSuccess = fileManager.rename(
                 oldPatch,
@@ -159,7 +166,7 @@ public class FileService {
         if(!renameSuccess)
             throw new Exception();
 
-        return fileDto;
+        return new FileDto(fileRepository.save(fileEntity));
     }
 
     @SneakyThrows

@@ -71,7 +71,7 @@ public class FileController {
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<FileDto> updateFolder(
             @RequestParam(name = "file_id") Long fileId,
-            @RequestParam(name = "folder_id") Long folderId,
+            @RequestParam(name = "folder_id", required = false) Long folderId,
             HttpServletRequest request
     ) {
         JwtAuthentication user = userService.getAuthInfo(request);
