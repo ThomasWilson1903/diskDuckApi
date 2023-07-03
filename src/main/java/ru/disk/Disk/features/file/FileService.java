@@ -119,12 +119,12 @@ public class FileService {
 
         fileEntity.setName(name);
         fileEntity.setDateUpdate(new Date());
-        fileEntity.setPath(newPatch);
+        fileEntity.setPatch(newPatch);
 
         FileDto fileDto =  new FileDto(fileRepository.save(fileEntity));
 
         fileManager.rename(
-                fileEntity.path,
+                fileEntity.patch,
                 newPatch
         );
 
@@ -153,12 +153,12 @@ public class FileService {
 
         fileEntity.setFolder(folderEntity);
         fileEntity.setDateUpdate(new Date());
-        fileEntity.setPath(newPath);
+        fileEntity.setPatch(newPath);
 
         FileDto fileDto = new FileDto(fileRepository.save(fileEntity));
 
         fileManager.rename(
-                fileEntity.path,
+                fileEntity.patch,
                 newPath
         );
 
@@ -191,7 +191,7 @@ public class FileService {
 
         fileRepository.delete(fileEntity);
 
-        fileManager.delete(fileEntity.getPath());
+        fileManager.delete(fileEntity.getPatch());
     }
 
     @SneakyThrows
@@ -208,6 +208,6 @@ public class FileService {
         else if(userId != null && !fileEntity.isPublic && !Objects.equals(fileEntity.getUser().getId(), userId))
             throw new AuthException();
 
-        return fileManager.get(fileEntity.getPath());
+        return fileManager.get(fileEntity.getPatch());
     }
 }

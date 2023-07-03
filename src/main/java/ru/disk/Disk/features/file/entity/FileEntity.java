@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.web.multipart.MultipartFile;
 import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.entity.UserEntity;
 
@@ -29,7 +28,7 @@ public class FileEntity {
     public String name;
 
     @Column(nullable = false)
-    public String path;
+    public String patch;
 
     @Column(nullable = false)
     public String expansion;
@@ -68,7 +67,7 @@ public class FileEntity {
         this.isPublic = false;
         this.user = user;
         this.folder = folder;
-        this.path = path;
+        this.patch = path;
 
         this.size = Math.toIntExact(Files.size(Path.of(path)));
     }

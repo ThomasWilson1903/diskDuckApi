@@ -33,6 +33,6 @@ public class FileDto {
 
         this.user = new UserDto(entity.getUser());
 
-        this.url = BaseConstance.BASE_URL + "/files/resource?patch=" + entity.getPath();
+        this.url = BaseConstance.BASE_URL + "/files/resource?patch=" + entity.getPatch();
     }
 }
