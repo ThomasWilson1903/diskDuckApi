@@ -19,6 +19,7 @@ public class FileDto {
     public Integer size;
     public Date dateUpdate;
     public Date dateCreate;
+    public Boolean inBasket;
     public Boolean isPublic;
     public UserDto user;
 
@@ -30,6 +31,7 @@ public class FileDto {
         this.isPublic = entity.getIsPublic();
         this.expansion = entity.getExpansion();
         this.size = entity.getSize();
+        this.inBasket = entity.getInBasket();
 
         this.user = new UserDto(entity.getUser());
 

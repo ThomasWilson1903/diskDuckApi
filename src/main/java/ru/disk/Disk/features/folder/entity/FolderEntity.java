@@ -34,6 +34,9 @@ public class FolderEntity {
     @Column(nullable = false)
     public Boolean isPublic = false;
 
+    @Column(nullable = false)
+    public Boolean inBasket = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     public UserEntity user;
 
@@ -54,6 +57,7 @@ public class FolderEntity {
         this.name = name;
         this.user = user;
         this.folder = folder;
+        this.inBasket = false;
     }
 
     public FolderEntity(FolderDto dto) {
@@ -62,6 +66,7 @@ public class FolderEntity {
         this.dateCreate = dto.getDateCreate();
         this.dateUpdate = dto.getDateUpdate();
         this.isPublic = dto.getIsPublic();
+        this.inBasket = dto.getInBasket();
         this.user = new UserEntity(dto.getUser());
     }
 

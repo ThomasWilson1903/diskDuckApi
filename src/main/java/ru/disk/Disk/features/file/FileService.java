@@ -197,9 +197,9 @@ public class FileService {
 
         if(!Objects.equals(fileEntity.getUser().getId(), userId)) throw new AuthException();
 
-        fileRepository.delete(fileEntity);
+        fileEntity.setInBasket(true);
 
-        fileManager.delete(fileEntity.getPatch());
+        fileRepository.save(fileEntity);
     }
 
     @SneakyThrows
@@ -217,5 +217,24 @@ public class FileService {
             throw new AuthException();
 
         return fileManager.get(fileEntity.getPatch());
+    }
+
+    @SneakyThrows
+    public FileDto inBasketToFalse(Long fileId, Long userId) {
+        Optional<FileEntity> fileEntityOptional = fileRepository.findById(fileId);
+
+        if(fileEntityOptional.isEmpty()) throw new NotFoundException("not found file");
+
+        FileEntity fileEntity = fileEntityOptional.get();
+
+        if(!Objects.equals(fileEntity.getUser().getId(), userId)) throw new AuthException();
+
+        fileEntity.setInBasket(false);
+
+        return new FileDto(fileRepository.save(fileEntity));
+    }
+
+    public void deleteAllInBasket(Long userId) {
+        fileRepository.deleteAllInBasket(userId);
     }
 }

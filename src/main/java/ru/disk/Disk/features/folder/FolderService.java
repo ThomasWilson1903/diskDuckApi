@@ -99,9 +99,9 @@ public class FolderService {
 
         if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
 
-        folderRepository.delete(folderEntity);
+        folderEntity.setInBasket(true);
 
-        fileManager.deleteFolder(folderEntity.getPatch());
+        folderRepository.save(folderEntity);
     }
 
     @SneakyThrows
@@ -183,5 +183,9 @@ public class FolderService {
             throw new Exception();
 
         return new FolderDto(folderEntity);
+    }
+
+    public void deleteAllInBasket(Long userId) {
+        folderRepository.deleteAllInBasket(userId);
     }
 }

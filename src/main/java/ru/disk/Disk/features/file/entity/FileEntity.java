@@ -43,6 +43,9 @@ public class FileEntity {
     @Column(nullable = false)
     public Boolean isPublic;
 
+    @Column(nullable = false)
+    public Boolean inBasket = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     public UserEntity user;
 
@@ -63,6 +66,7 @@ public class FileEntity {
         this.dateCreate = new Date();
         this.dateUpdate = new Date();
         this.isPublic = false;
+        this.inBasket = false;
         this.user = user;
         this.folder = folder;
 

@@ -16,6 +16,7 @@ public class FolderDto {
     public Date dateUpdate;
     public Date dateCreate;
     public Boolean isPublic;
+    public Boolean inBasket;
     public UserDto user;
 
     public FolderDto(FolderEntity entity) {
@@ -24,6 +25,7 @@ public class FolderDto {
         this.dateCreate = entity.getDateCreate();
         this.dateUpdate = entity.getDateUpdate();
         this.isPublic = entity.getIsPublic();
+        this.inBasket = entity.getInBasket();
 
         this.user = new UserDto(entity.getUser());
     }
