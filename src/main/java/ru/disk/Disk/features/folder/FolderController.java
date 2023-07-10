@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.disk.Disk.features.file.FileService;
 import ru.disk.Disk.features.file.dto.FileDto;
 import ru.disk.Disk.features.folder.dto.FolderDto;
+import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.UserService;
 import ru.disk.Disk.features.user.dto.JwtAuthentication;
 
@@ -117,5 +118,17 @@ public class FolderController {
         JwtAuthentication user = userService.getAuthInfo(request);
 
         return ResponseEntity.ok(folderService.updateFolder(user.getId(), folderId, newFolderId));
+    }
+
+    @PatchMapping("in_basket/to_false")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<FolderDto> inBasketToFalse(
+            @RequestParam(name = "folder_id") Long folderId,
+            HttpServletRequest request
+    ) {
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(folderService.inBasketToFalse(folderId, user.getId()));
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.disk.Disk.features.file.dto.FileDto;
+import ru.disk.Disk.features.file.entity.FileEntity;
 import ru.disk.Disk.features.folder.dto.FolderDto;
 import ru.disk.Disk.features.folder.entity.FolderEntity;
 import ru.disk.Disk.features.user.UserRepository;
@@ -187,5 +189,20 @@ public class FolderService {
 
     public void deleteAllInBasket(Long userId) {
         folderRepository.deleteAllInBasket(userId);
+    }
+
+    @SneakyThrows
+    public FolderDto inBasketToFalse(Long folderId, Long userId) {
+        Optional<FolderEntity> folderEntityOptional = folderRepository.findById(folderId);
+
+        if(folderEntityOptional.isEmpty()) throw new NotFoundException("not found folder");
+
+        FolderEntity folderEntity = folderEntityOptional.get();
+
+        if(!Objects.equals(folderEntity.getUser().getId(), userId)) throw new AuthException();
+
+        folderEntity.setInBasket(false);
+
+        return new FolderDto(folderRepository.save(folderEntity));
     }
 }

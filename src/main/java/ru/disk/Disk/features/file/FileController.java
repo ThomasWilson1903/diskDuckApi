@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.disk.Disk.features.file.dto.FileDto;
+import ru.disk.Disk.features.folder.dto.FolderDto;
 import ru.disk.Disk.features.user.UserService;
 import ru.disk.Disk.features.user.dto.JwtAuthentication;
 
@@ -115,5 +116,17 @@ public class FileController {
         }catch (Exception ignored) {}
 
         return fileService.getFileResource(fileId, userId);
+    }
+
+    @PatchMapping("in_basket/to_false")
+    @PreAuthorize("hasAuthority('BASE_USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<FileDto> inBasketToFalse(
+            @RequestParam(name = "file_id") Long fileId,
+            HttpServletRequest request
+    ) {
+        JwtAuthentication user = userService.getAuthInfo(request);
+
+        return ResponseEntity.ok(fileService.inBasketToFalse(fileId, user.getId()));
     }
 }
