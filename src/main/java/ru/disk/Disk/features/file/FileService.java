@@ -22,6 +22,7 @@ import javax.security.auth.message.AuthException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ public class FileService {
     public Page<FileDto> getAll(
             Long folderId,
             Long userId,
+            Boolean inBasket,
             @Min(0) int pageNumber,
             @Min(1) @Max(100) int pageSize
     ) {
@@ -51,12 +53,14 @@ public class FileService {
         if(folderId == null){
             entities = fileRepository.findByFolderNull(
                     userId,
+                    inBasket,
                     PageRequest.of(pageNumber, pageSize)
             );
         }else {
             entities = fileRepository.findByFolderId(
                     folderId,
                     userId,
+                    inBasket,
                     PageRequest.of(pageNumber, pageSize)
             );
         }
@@ -235,6 +239,11 @@ public class FileService {
     }
 
     public void deleteAllInBasket(Long userId) {
-        fileRepository.deleteAllInBasket(userId);
+        List<FileEntity> folderEntities = fileRepository.findAllByUserId(userId, true);
+
+        folderEntities.forEach(file -> {
+            fileRepository.delete(file);
+            fileManager.delete(file.getPatch());
+        });
     }
 }

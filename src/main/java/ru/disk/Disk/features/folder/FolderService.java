@@ -19,6 +19,7 @@ import javax.security.auth.message.AuthException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,6 +38,7 @@ public class FolderService {
     public Page<FolderDto> getAll(
             Long folderId,
             Long userId,
+            Boolean inBasket,
             @Min(0) int pageNumber,
             @Min(1) @Max(100) int pageSize
     ) {
@@ -45,12 +47,14 @@ public class FolderService {
         if(folderId == null){
             entities = folderRepository.findByFolderNull(
                     userId,
+                    inBasket,
                     PageRequest.of(pageNumber, pageSize)
             );
         }else {
             entities = folderRepository.findByFolderId(
                     folderId,
                     userId,
+                    inBasket,
                     PageRequest.of(pageNumber, pageSize)
             );
         }
@@ -187,8 +191,14 @@ public class FolderService {
         return new FolderDto(folderEntity);
     }
 
+    @Transient
     public void deleteAllInBasket(Long userId) {
-        folderRepository.deleteAllInBasket(userId);
+        List<FolderEntity> folderEntities = folderRepository.findAllByUserId(userId, true);
+
+        folderEntities.forEach(folder -> {
+            folderRepository.delete(folder);
+            fileManager.deleteFolder(folder.getPatch());
+        });
     }
 
     @SneakyThrows

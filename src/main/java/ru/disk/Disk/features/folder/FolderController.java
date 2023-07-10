@@ -37,13 +37,14 @@ public class FolderController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<FolderDto>> getAll(
             @RequestParam(name = "folder_id", required = false) Long folderId,
+            @RequestParam(name = "in_basket", defaultValue = "false") Boolean inBasket,
             @RequestParam(name = "page", defaultValue = "0") int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
             HttpServletRequest request
     ){
         JwtAuthentication user = userService.getAuthInfo(request);
 
-        return ResponseEntity.ok(folderService.getAll(folderId, user.getId(), pageNumber, pageSize));
+        return ResponseEntity.ok(folderService.getAll(folderId, user.getId(), inBasket, pageNumber, pageSize));
     }
 
     @PostMapping

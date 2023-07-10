@@ -32,13 +32,14 @@ public class FileController {
     @PreAuthorize("hasAuthority('BASE_USER')")
     public ResponseEntity<Page<FileDto>> getAll(
             @RequestParam(name = "folder_id", required = false) Long folderId,
+            @RequestParam(name = "in_basket", defaultValue = "false") Boolean inBasket,
             @RequestParam(name = "page", defaultValue = "0") int pageNumber,
             @RequestParam(name = "pageSize", defaultValue = "20") int pageSize,
             HttpServletRequest request
     ){
         JwtAuthentication user = userService.getAuthInfo(request);
 
-        return ResponseEntity.ok(fileService.getAll(folderId, user.getId(), pageNumber, pageSize));
+        return ResponseEntity.ok(fileService.getAll(folderId, user.getId(), inBasket, pageNumber, pageSize));
     }
 
     @PostMapping(consumes = { "multipart/form-data" })
