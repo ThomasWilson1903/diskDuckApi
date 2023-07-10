@@ -26,6 +26,6 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
     @Query("DELETE files WHERE user_id = :userId AND in_basket = true")
     void deleteAllInBasket(@Param("userId") Long userId);
 
-    @Query("SELECT u FROM files u WHERE user_id = ?1 AND in_basket = ?3")
+    @Query("SELECT u FROM files u WHERE user_id = ?1 AND in_basket = ?2")
     List<FileEntity> findAllByUserId(Long userId, Boolean inBasket);
 }

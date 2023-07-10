@@ -26,6 +26,6 @@ public interface FolderRepository extends JpaRepository<FolderEntity, Long> {
     @Query("DELETE folders WHERE user_id = :userId AND in_basket = true")
     void deleteAllInBasket(@Param("userId") Long userId);
 
-    @Query("SELECT u FROM folders u WHERE user_id = ?1 AND in_basket = ?3")
+    @Query("SELECT u FROM folders u WHERE user_id = ?1 AND in_basket = ?2")
     List<FolderEntity> findAllByUserId(Long userId, Boolean inBasket);
 }
